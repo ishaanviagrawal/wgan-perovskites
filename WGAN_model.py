@@ -225,7 +225,7 @@ class WGAN:
         B_list = ['B_ion_rad', 'B_BP', 'B_MP', 'B_dens', 'B_at_wt', 'B_EA', 'B_IE', 'B_hof', 'B_hov', 'B_En', 'B_at_num', 'B_period']
         X_list = ['X_ion_rad', 'X_BP', 'X_MP', 'X_dens', 'X_at_wt', 'X_EA', 'X_IE', 'X_hof', 'X_hov', 'X_En', 'X_at_num', 'X_period']
 
-        sp_properties = pd.read_csv('C:/BTP/WGAN_CompositionVector/species_properties.csv')
+        sp_properties = pd.read_csv('species_properties.csv')
         sp_properties = sp_properties.set_index("element")
         sp_properties.set_axis([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], axis='columns', inplace=True)
 

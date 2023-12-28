@@ -181,40 +181,31 @@ class WGAN:
         n_gen: number of generated samples
         Ensures that the sum of fractions of all A, B, and X site species present is 1
         '''
+        f_el = ['K', 'Rb', 'Cs', 'MA', 'FA', 'Ca', 'Sr', 'Ba', 'Ge', 'Sn', 'Pb','Cl', 'Br', 'I']
         for i in range(n_gen):
-            for a in ['K', 'Rb', 'Cs', 'MA', 'FA', 'Ca', 'Sr', 'Ba', 'Ge', 'Sn', 'Pb','Cl', 'Br', 'I']:
+            for a in f_el:
                 if data_gen.loc[i, a] < 0:
                     data_gen.loc[i, a] = abs(data_gen.loc[i, a])
 
-            sum_A = data_gen.loc[i, "K"] + data_gen.loc[i, "Rb"] + data_gen.loc[i, "Cs"] + data_gen.loc[i, "MA"] + data_gen.loc[i, "FA"]
-            sum_B = data_gen.loc[i, "Ca"] + data_gen.loc[i, "Sr"] + data_gen.loc[i, "Ba"] + data_gen.loc[i, "Ge"] + data_gen.loc[i, "Sn"] \
-                + data_gen.loc[i, "Pb"]
-            sum_X = data_gen.loc[i, "Cl"] + data_gen.loc[i, "Br"] + data_gen.loc[i, "I"]
-
-            for k in ['K', 'Rb', 'Cs', 'MA', 'FA']:
-                data_gen.loc[i, k] = data_gen.loc[i, k]/sum_A
-
-            for k in ['Ca', 'Sr', 'Ba', 'Ge', 'Sn', 'Pb']:
-                data_gen.loc[i, k] = data_gen.loc[i, k]/sum_B
+            sum_A = 0
+            sum_B = 0
+            sum_X = 0
             
-            for k in ['Cl', 'Br', 'I']:
+            for a in range(5):
+                sum_A += data_gen.loc[i, f_el[a]]
+            for a in range(6):
+                sum_B += data_gen.loc[i, f_el[a+5]]
+            for a in range(3):
+                sum_X += data_gen.loc[i, f_el[a+11]]
+
+
+            for k in f_el[0:5]:
+                data_gen.loc[i, k] = data_gen.loc[i, k]/sum_A
+            for k in f_el[5:11]:
+                data_gen.loc[i, k] = data_gen.loc[i, k]/sum_B
+            for k in f_el[11:14]:
                 data_gen.loc[i, k] = data_gen.loc[i, k]/sum_X
-
-            sum_A = data_gen.loc[i, "K"] + data_gen.loc[i, "Rb"] + data_gen.loc[i, "Cs"] + data_gen.loc[i, "MA"] + data_gen.loc[i, "FA"]
-            sum_B = data_gen.loc[i, "Ca"] + data_gen.loc[i, "Sr"] + data_gen.loc[i, "Ba"] + data_gen.loc[i, "Ge"] + data_gen.loc[i, "Sn"] \
-                + data_gen.loc[i, "Pb"]
-            sum_X = data_gen.loc[i, "Cl"] + data_gen.loc[i, "Br"] + data_gen.loc[i, "I"]
-
-            if sum_A != 1:
-                data_gen.loc[i, 'K'] = 1.00000000 - (data_gen.loc[i, "Rb"] + data_gen.loc[i, "Cs"] + data_gen.loc[i, "MA"] + data_gen.loc[i, "FA"])
-
-            if sum_B != 1:
-                data_gen.loc[i, 'Pb'] = 1.00000000 - (data_gen.loc[i, "Ca"] + data_gen.loc[i, "Sr"] + data_gen.loc[i, "Ba"] + data_gen.loc[i, "Ge"] \
-                                                        + data_gen.loc[i, "Sn"])
-
-            if sum_X != 1:
-                data_gen.loc[i, 'Cl'] = 1.00000000 - (data_gen.loc[i, "Br"] + data_gen.loc[i, "I"])
-
+                
         return data_gen
     
     def calculate_properties(self, data_gen, n_gen):
@@ -232,18 +223,19 @@ class WGAN:
         for i in range(n_gen):
 
             for k in range(len(A_list)):
-                data_gen.loc[i, A_list[k]] = data_gen.loc[i, "K"]*sp_properties.loc["K", k] + data_gen.loc[i, "Rb"]*sp_properties.loc["Rb", k] \
-                    + data_gen.loc[i, "Cs"]*sp_properties.loc["Cs", k] + data_gen.loc[i, "FA"]*sp_properties.loc["FA", k] \
-                        + data_gen.loc[i, "MA"]*sp_properties.loc["MA", k]
+                data_gen.loc[i, A_list[k]] = 0
+                for a in range(5):
+                     data_gen.loc[i, A_list[k]] += data_gen.loc[i, f_el[a]]*sp_properties.loc[f_el[a], k]
 
             for k in range(len(B_list)):
-                data_gen.loc[i, B_list[k]] = data_gen.loc[i, "Ca"]*sp_properties.loc["Ca", k] + data_gen.loc[i, "Sr"]*sp_properties.loc["Sr", k]\
-                      + data_gen.loc[i, "Ge"]*sp_properties.loc["Ge", k] + data_gen.loc[i, "Ba"]*sp_properties.loc["Ba", k] + \
-                        data_gen.loc[i, "Sn"]*sp_properties.loc["Sn", k] + data_gen.loc[i, "Pb"]*sp_properties.loc["Pb", k]
+                data_gen.loc[i, B_list[k]] = 0
+                for a in range(6):
+                     data_gen.loc[i, B_list[k]] += data_gen.loc[i, f_el[a+5]]*sp_properties.loc[f_el[a+5], k]
 
             for k in range(len(X_list)):
-                data_gen.loc[i, X_list[k]] = data_gen.loc[i, "Cl"]*sp_properties.loc["Cl", k] + data_gen.loc[i, "Br"]*sp_properties.loc["Br", k] \
-                    + data_gen.loc[i, "I"]*sp_properties.loc["I", k]
+                data_gen.loc[i, X_list[k]] = 0
+                for a in range(3):
+                     data_gen.loc[i, X_list[k]] += data_gen.loc[i, f_el[a+11]]*sp_properties.loc[f_el[a+11], k]
 
         return data_gen
     
